@@ -1,0 +1,44 @@
+# Node.js dependencies
+node_modules/
+
+# Build artifacts and temporary files
+artifacts/
+cache/
+build/
+dist/
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.production
+
+# Log files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Next.js specific
+.next/
+out/
+
+# TypeScript build files
+*.tsbuildinfo
+
+# Coverage reports
+coverage/
+
+# Solidity build artifacts (from Hardhat)
+contracts/artifacts/
+contracts/cache/
+
+# Eslint and Prettier files
+.eslintcache
+
+# Tailwind JIT
+tailwind.config.js
