@@ -68,7 +68,7 @@ export function useWallet() {
         const provider = preferredProvider || 'METAMASK';
         const deepLink = getWalletDeepLink(
           provider,
-          window.location.href,
+          `${window.location.href}?connect=true`,
           preferredChainId
         );
         window.location.href = deepLink;
@@ -152,6 +152,23 @@ export function useWallet() {
       }
     };
   }, [disconnectWallet, updateChainInfo]);
+
+  useEffect(() => {
+    const checkConnection = async () => {
+      if (window.ethereum) {
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+          if (accounts.length > 0) {
+            await connectWallet();
+          }
+        } catch (error) {
+          console.error('Error checking connection:', error);
+        }
+      }
+    };
+
+    checkConnection();
+  }, []);
 
   return {
     ...state,

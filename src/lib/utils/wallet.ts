@@ -18,7 +18,7 @@ export function getWalletDeepLink(provider: keyof typeof WALLET_PROVIDERS, dappU
 
   if (isIOS) {
     // iOS-specific deep linking
-    const mmUrl = `metamask://dapp/${dappUrl}`;
+    const mmUrl = `metamask://dapp/${encodeURIComponent(dappUrl)}`;
     
     // First try opening MetaMask directly
     setTimeout(() => {
@@ -27,7 +27,7 @@ export function getWalletDeepLink(provider: keyof typeof WALLET_PROVIDERS, dappU
     
     // If direct deep link fails, try universal link as fallback
     setTimeout(() => {
-      const universalUrl = `https://metamask.app.link/dapp/${dappUrl}`;
+      const universalUrl = `https://metamask.app.link/dapp/${encodeURIComponent(dappUrl)}`;
       window.location.href = universalUrl;
     }, 2000);
 

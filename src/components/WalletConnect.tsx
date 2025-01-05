@@ -110,6 +110,13 @@ const WalletConnect: React.FC = () => {
             <Button
               disabled={isConnecting}
               className="glass-button flex items-center gap-2 text-purple-300 hover:text-purple-200"
+              onClick={() => {
+                if (deviceType !== DEVICE_TYPES.DESKTOP && !isInApp) {
+                  handleConnect();
+                } else {
+                  setIsDialogOpen(true);
+                }
+              }}
             >
               <Wallet className="w-4 h-4" />
               <span>{isConnecting ? "Connecting..." : "Connect Wallet"}</span>
