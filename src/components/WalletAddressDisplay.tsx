@@ -4,18 +4,11 @@ import React, { useState } from 'react';
 import { Copy, Check, ChevronDown, ExternalLink } from 'lucide-react';
 import { Button } from "./ui/Button";
 import { useToast } from "./ui/use-toast";
-import { SUPPORTED_CHAINS, ChainId } from '../lib/constants/chains';
+import { SUPPORTED_CHAINS } from '../lib/constants/chains';
 
-interface ChainInfo {
-  chainId: string;
-  name: string;
-  nativeCurrency: {
-    name: string;
-    symbol: string;
-    decimals: number;
-  };
-  rpcUrl: string;
-  blockExplorerUrl: string;
+interface WalletAddressDisplayProps {
+  address: string | null;
+  chainId: string | null;
 }
 
 const formatAddress = (address: string): string => {
@@ -48,9 +41,7 @@ const WalletAddressDisplay: React.FC<WalletAddressDisplayProps> = ({ address, ch
     }
   };
 
-  const chainInfo: ChainInfo | undefined = chainId 
-    ? SUPPORTED_CHAINS[parseInt(chainId, 16) as ChainId] 
-    : undefined;
+  const chainInfo = chainId ? SUPPORTED_CHAINS[parseInt(chainId, 16) as keyof typeof SUPPORTED_CHAINS] : null;
 
   return (
     <div className="w-full max-w-sm border border-purple-500/20 rounded-lg overflow-hidden">
@@ -99,7 +90,7 @@ const WalletAddressDisplay: React.FC<WalletAddressDisplayProps> = ({ address, ch
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="font-medium">Currency:</span>
-                  <span>{chainInfo.nativeCurrency.symbol}</span>
+                  <span>{chainInfo.currency.symbol}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="font-medium">Chain ID:</span>
@@ -108,7 +99,7 @@ const WalletAddressDisplay: React.FC<WalletAddressDisplayProps> = ({ address, ch
                 <Button
                   variant="link"
                   className="mt-2 text-purple-400 hover:text-purple-300"
-                  onClick={() => window.open(chainInfo.blockExplorerUrl, '_blank')}
+                  onClick={() => window.open(chainInfo.blockExplorerUrl[0], '_blank')}
                 >
                   View on Explorer
                   <ExternalLink className="ml-2 w-4 h-4" />

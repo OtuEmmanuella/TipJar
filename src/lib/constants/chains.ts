@@ -11,6 +11,7 @@ export enum ChainId {
   }
   
   export interface ChainInfo {
+    currency: any;
     chainId: string;
     name: string;
     nativeCurrency: NativeCurrency;
@@ -27,6 +28,7 @@ export enum ChainId {
         symbol: 'ETH',
         decimals: 18,
       },
+      currency: 'ETH',
       rpcUrl: 'https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID',
       blockExplorerUrl: 'https://etherscan.io',
     },
@@ -38,6 +40,7 @@ export enum ChainId {
         symbol: 'MATIC',
         decimals: 18,
       },
+      currency: 'MATIC', 
       rpcUrl: 'https://polygon-rpc.com',
       blockExplorerUrl: 'https://polygonscan.com',
     },

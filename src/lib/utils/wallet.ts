@@ -29,6 +29,18 @@ interface AddEthereumChainParameter {
 }
 
 /**
+ * Utility to get the Ethereum provider, or throw an error if not available.
+ * @returns The Ethereum provider.
+ * @throws Error if no Ethereum provider is found.
+ */
+function getEthereumProvider(): EthereumProvider {
+  if (!window.ethereum) {
+    throw new Error('No crypto wallet found');
+  }
+  return window.ethereum;
+}
+
+/**
  * Formats an Ethereum address by shortening it (e.g., 0x1234...5678).
  * @param address The full Ethereum address to format.
  * @returns The formatted address string.
@@ -44,7 +56,6 @@ export function formatAddress(address: string): string {
  * @returns The name of the chain or 'Unknown Chain' if not found.
  */
 export function getChainName(chainId: string): string {
-  // Convert hex chainId to number and find matching chain
   const numericChainId = parseInt(chainId, 16);
   const chain = SUPPORTED_CHAINS[numericChainId as ChainId];
   return chain ? chain.name : 'Unknown Chain';
@@ -57,9 +68,7 @@ export function getChainName(chainId: string): string {
  * @throws Error if no crypto wallet is found or if switching/adding chain fails.
  */
 export async function switchChain(chainId: ChainId): Promise<void> {
-  if (!window.ethereum) {
-    throw new Error('No crypto wallet found');
-  }
+  const ethereum = getEthereumProvider();
 
   const chain = SUPPORTED_CHAINS[chainId];
   if (!chain) {
@@ -69,16 +78,13 @@ export async function switchChain(chainId: ChainId): Promise<void> {
   const chainIdHex = chain.chainId;
 
   try {
-    // Try to switch to the chain
-    await window.ethereum.request({
+    await ethereum.request({
       method: 'wallet_switchEthereumChain',
       params: [{ chainId: chainIdHex }],
     });
   } catch (switchError: any) {
-    // This error code indicates that the chain has not been added to MetaMask
     if (switchError.code === 4902) {
       try {
-        // If the chain is not added, try to add it
         await addChain(chain);
       } catch (addError) {
         console.error('Failed to add the network', addError);
@@ -97,9 +103,7 @@ export async function switchChain(chainId: ChainId): Promise<void> {
  * @throws Error if adding the chain fails.
  */
 async function addChain(chain: ChainInfo): Promise<void> {
-  if (!window.ethereum) {
-    throw new Error('No crypto wallet found');
-  }
+  const ethereum = getEthereumProvider();
 
   const addChainParameter: AddEthereumChainParameter = {
     chainId: chain.chainId,
@@ -109,7 +113,7 @@ async function addChain(chain: ChainInfo): Promise<void> {
     blockExplorerUrls: [chain.blockExplorerUrl],
   };
 
-  await window.ethereum.request({
+  await ethereum.request({
     method: 'wallet_addEthereumChain',
     params: [addChainParameter],
   });
@@ -121,16 +125,13 @@ async function addChain(chain: ChainInfo): Promise<void> {
  * @returns A function to remove the listener.
  */
 export function onAccountsChanged(callback: (accounts: string[]) => void): () => void {
-  if (!window.ethereum) {
-    console.warn('No crypto wallet found');
-    return () => {};
-  }
+  const ethereum = getEthereumProvider();
 
   const handler = (accounts: string[]) => callback(accounts);
-  window.ethereum.on('accountsChanged', handler);
+  ethereum.on('accountsChanged', handler);
 
   return () => {
-    window.ethereum.removeListener('accountsChanged', handler);
+    ethereum.removeListener('accountsChanged', handler);
   };
 }
 
@@ -140,16 +141,13 @@ export function onAccountsChanged(callback: (accounts: string[]) => void): () =>
  * @returns A function to remove the listener.
  */
 export function onChainChanged(callback: (chainId: string) => void): () => void {
-  if (!window.ethereum) {
-    console.warn('No crypto wallet found');
-    return () => {};
-  }
+  const ethereum = getEthereumProvider();
 
   const handler = (chainId: string) => callback(chainId);
-  window.ethereum.on('chainChanged', handler);
+  ethereum.on('chainChanged', handler);
 
   return () => {
-    window.ethereum.removeListener('chainChanged', handler);
+    ethereum.removeListener('chainChanged', handler);
   };
 }
 
@@ -159,12 +157,10 @@ export function onChainChanged(callback: (chainId: string) => void): () => void 
  * @throws Error if no crypto wallet is found or if the request is rejected.
  */
 export async function requestAccounts(): Promise<string[]> {
-  if (!window.ethereum) {
-    throw new Error('No crypto wallet found');
-  }
+  const ethereum = getEthereumProvider();
 
   try {
-    const accounts = await window.ethereum.request({
+    const accounts = await ethereum.request({
       method: 'eth_requestAccounts',
     });
     return accounts as string[];
@@ -180,12 +176,10 @@ export async function requestAccounts(): Promise<string[]> {
  * @throws Error if no crypto wallet is found or if getting the chain ID fails.
  */
 export async function getCurrentChainId(): Promise<string> {
-  if (!window.ethereum) {
-    throw new Error('No crypto wallet found');
-  }
+  const ethereum = getEthereumProvider();
 
   try {
-    const chainId = await window.ethereum.request({
+    const chainId = await ethereum.request({
       method: 'eth_chainId',
     });
     return chainId as string;
@@ -194,4 +188,3 @@ export async function getCurrentChainId(): Promise<string> {
     throw new Error('Failed to get current chain ID');
   }
 }
-
