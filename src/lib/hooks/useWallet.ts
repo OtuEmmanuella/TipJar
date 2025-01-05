@@ -1,49 +1,129 @@
-// import { useState, useEffect, useCallback } from "react";
-// import { ethers } from "ethers";
+"use client";
 
-// export function useWallet() {
-//   const [address, setAddress] = useState<string | null>(null);
-//   const [isConnected, setIsConnected] = useState(false);
+import { useState, useEffect, useCallback } from 'react';
+import { BrowserProvider, JsonRpcSigner } from 'ethers';
+import { switchChain, getChainName } from '../utils/wallet';
+import type { ChainId } from '../constants/chains';
 
-//   const connect = useCallback(async () => {
-//     if (typeof window.ethereum !== "undefined") {
-//       try {
-//         await window.ethereum.request({ method: "eth_requestAccounts" });
-//         const provider = new ethers.providers.Web3Provider(window.ethereum);
-//         const signer = provider.getSigner();
-//         const address = await signer.getAddress();
-//         setAddress(address);
-//         setIsConnected(true);
-//       } catch (error) {
-//         console.error("Error connecting wallet:", error);
-//       }
-//     }
-//   }, []);
+interface WalletState {
+  address: string | null;
+  chainId: string | null;
+  chainName: string | null;
+  isConnecting: boolean;
+  isConnected: boolean;
+  signer: JsonRpcSigner | null;
+  error: Error | null;
+}
 
-//   const disconnect = useCallback(() => {
-//     setAddress(null);
-//     setIsConnected(false);
-//   }, []);
+export function useWallet() {
+  const [state, setState] = useState<WalletState>({
+    address: null,
+    chainId: null,
+    chainName: null,
+    isConnecting: false,
+    isConnected: false,
+    signer: null,
+    error: null,
+  });
 
-//   useEffect(() => {
-//     if (typeof window.ethereum !== "undefined") {
-//       window.ethereum.on("accountsChanged", (accounts: string[]) => {
-//         if (accounts.length > 0) {
-//           setAddress(accounts[0]);
-//           setIsConnected(true);
-//         } else {
-//           setAddress(null);
-//           setIsConnected(false);
-//         }
-//       });
-//     }
+  const updateChainInfo = useCallback(async () => {
+    if (!window.ethereum) return;
 
-//     return () => {
-//       if (window.ethereum) {
-//         window.ethereum.removeAllListeners();
-//       }
-//     };
-//   }, []);
+    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+    const chainName = getChainName(chainId);
 
-//   return { address, isConnected, connect, disconnect };
-// }
+    setState(prev => ({
+      ...prev,
+      chainId,
+      chainName,
+    }));
+  }, []);
+
+  const connectWallet = async (preferredChainId?: ChainId) => {
+    if (!window.ethereum) {
+      setState(prev => ({
+        ...prev,
+        error: new Error('No wallet found')
+      }));
+      return;
+    }
+
+    try {
+      setState(prev => ({ ...prev, isConnecting: true, error: null }));
+
+      if (preferredChainId) {
+        await switchChain(preferredChainId);
+      }
+
+      const accounts = await window.ethereum.request({
+        method: 'eth_requestAccounts'
+      });
+
+      const provider = new BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const address = accounts[0];
+
+      await updateChainInfo();
+
+      setState(prev => ({
+        ...prev,
+        address,
+        isConnecting: false,
+        isConnected: true,
+        signer,
+        error: null,
+      }));
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        isConnecting: false,
+        error: error as Error,
+      }));
+      throw error;
+    }
+  };
+
+  const disconnectWallet = () => {
+    setState({
+      address: null,
+      chainId: null,
+      chainName: null,
+      isConnecting: false,
+      isConnected: false,
+      signer: null,
+      error: null,
+    });
+  };
+
+  useEffect(() => {
+    if (window.ethereum) {
+      window.ethereum.on('accountsChanged', (accounts: string[]) => {
+        if (accounts.length === 0) {
+          disconnectWallet();
+        } else {
+          setState(prev => ({
+            ...prev,
+            address: accounts[0],
+          }));
+        }
+      });
+
+      window.ethereum.on('chainChanged', async () => {
+        await updateChainInfo();
+      });
+    }
+
+    return () => {
+      if (window.ethereum) {
+        window.ethereum.removeAllListeners();
+      }
+    };
+  }, [updateChainInfo]);
+
+  return {
+    ...state,
+    connectWallet,
+    disconnectWallet,
+    switchChain,
+  };
+}
