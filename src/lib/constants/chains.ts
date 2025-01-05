@@ -1,37 +1,46 @@
-export const SUPPORTED_CHAINS = {
-    1: {
+export enum ChainId {
+    ETHEREUM = 1,
+    POLYGON = 137,
+    // Add other chain IDs as needed
+  }
+  
+  export interface NativeCurrency {
+    name: string;
+    symbol: string;
+    decimals: number;
+  }
+  
+  export interface ChainInfo {
+    chainId: string;
+    name: string;
+    nativeCurrency: NativeCurrency;
+    rpcUrl: string;
+    blockExplorerUrl: string;
+  }
+  
+  export const SUPPORTED_CHAINS: Record<ChainId, ChainInfo> = {
+    [ChainId.ETHEREUM]: {
       chainId: '0x1',
       name: 'Ethereum Mainnet',
-      currency: {
+      nativeCurrency: {
         name: 'Ether',
         symbol: 'ETH',
-        decimals: 18
+        decimals: 18,
       },
-      rpcUrls: ['https://eth-mainnet.public.blastapi.io'],
-      blockExplorerUrls: ['https://etherscan.io']
+      rpcUrl: 'https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID',
+      blockExplorerUrl: 'https://etherscan.io',
     },
-    137: {
+    [ChainId.POLYGON]: {
       chainId: '0x89',
       name: 'Polygon Mainnet',
-      currency: {
+      nativeCurrency: {
         name: 'MATIC',
         symbol: 'MATIC',
-        decimals: 18
+        decimals: 18,
       },
-      rpcUrls: ['https://polygon-rpc.com'],
-      blockExplorerUrls: ['https://polygonscan.com']
+      rpcUrl: 'https://polygon-rpc.com',
+      blockExplorerUrl: 'https://polygonscan.com',
     },
-    56: {
-      chainId: '0x38',
-      name: 'BNB Smart Chain',
-      currency: {
-        name: 'BNB',
-        symbol: 'BNB',
-        decimals: 18
-      },
-      rpcUrls: ['https://bsc-dataseed.binance.org'],
-      blockExplorerUrls: ['https://bscscan.com']
-    }
-  } as const;
+    // Add other supported chains as needed
+  };
   
-  export type ChainId = keyof typeof SUPPORTED_CHAINS;
