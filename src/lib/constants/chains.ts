@@ -5,6 +5,7 @@ dotenv.config(); // Load environment variables
 export enum ChainId {
   ETHEREUM = 1,
   POLYGON = 137,
+  SEPOLIA = 11155111,
   // Add other chain IDs as needed
 }
 
@@ -47,6 +48,18 @@ export const SUPPORTED_CHAINS: Record<ChainId, ChainInfo> = {
     currency: 'MATIC',
     rpcUrl: 'https://polygon-rpc.com', // No sensitive key required
     blockExplorerUrl: 'https://polygonscan.com',
+  }, 
+  [ChainId.SEPOLIA]: {
+    chainId: '0xAa36A7',
+    name: 'Sepolia Testnet',
+    nativeCurrency: {
+      name: 'Sepolia Ether',
+      symbol: 'ETH',
+      decimals: 18,
+    },
+    currency: 'ETH',
+    rpcUrl: `https://sepolia.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,  // Replace with Infura RPC for Sepolia
+    blockExplorerUrl: 'https://sepolia.etherscan.io',  // Block explorer for Sepolia
   },
   // Add other supported chains as needed
 };
