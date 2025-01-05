@@ -1,6 +1,7 @@
-"use client"; 
-import { Bitcoin, DollarSign, Wallet, CreditCard, Plus } from "lucide-react";
+"use client";
+import { Bitcoin, DollarSign, Wallet, CreditCard, Plus, History } from "lucide-react";
 import { motion } from "framer-motion";
+import TipJarForm from "./TipJarForm";
 
 const Hero = () => {
   return (
@@ -44,54 +45,75 @@ const Hero = () => {
         </motion.div>
       </div>
 
-      {/* Central content */}
-      <div className="relative z-10 text-center max-w-4xl mx-auto">
+      {/* Main content container */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 flex flex-col lg:flex-row items-center justify-between gap-12">
+        {/* Left side - Text content */}
+        <div className="flex-1 text-center lg:text-left">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="mb-6"
+          >
+            <span className="px-4 py-1.5 text-sm font-medium text-purple-300 glass-panel inline-block">
+              BLOCKCHAIN TIPPING
+            </span>
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-4xl md:text-6xl font-bold mb-6 tracking-tight"
+          >
+            The Future of Digital <br />
+            <span className="text-gradient">Appreciation</span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="text-lg md:text-xl text-gray-400 mb-8 max-w-2xl"
+          >
+            Send instant tips across the blockchain. Support creators, artists, and innovators with seamless cryptocurrency transactions.
+          </motion.p>
+
+          {/* Transaction History Button */}
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="group relative inline-flex items-center gap-2 px-6 py-3 bg-purple-500/10 hover:bg-purple-500/20 
+                       text-purple-300 rounded-lg transition-all duration-300 backdrop-blur-sm border border-purple-500/20
+                       hover:border-purple-500/40"
+            onClick={() => {/* Add your transaction history logic here */}}
+          >
+            <History className="w-5 h-5 transition-transform group-hover:rotate-180 duration-500" />
+            <span className="font-medium">View Transaction History</span>
+            <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-purple-500/0 via-purple-500/10 to-purple-500/0 
+                          opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500" />
+          </motion.button>
+        </div>
+
+        {/* Right side - TipJar Form */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="mb-6"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
+          className="flex-1 w-full max-w-md"
         >
-          <span className="px-4 py-1.5 text-sm font-medium text-purple-300 glass-panel inline-block">
-            BLOCKCHAIN TIPPING
-          </span>
-        </motion.div>
-
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-4xl md:text-6xl font-bold mb-6 tracking-tight"
-        >
-          The Future of Digital <br />
-          <span className="text-gradient">Appreciation</span>
-        </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="text-lg md:text-xl text-gray-400 mb-8 max-w-2xl mx-auto"
-        >
-          Send instant tips across the blockchain. Support creators, artists, and innovators with seamless cryptocurrency transactions.
-        </motion.p>
-
-        {/* Central plus icon with glow */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, delay: 0.6 }}
-          className="relative w-24 h-24 mx-auto mb-8"
-        >
-          <div className="absolute inset-0 bg-purple-500/20 rounded-full blur-xl animate-pulse-purple" />
-          <div className="relative glass-panel w-full h-full rounded-full flex items-center justify-center">
-            <Plus className="w-10 h-10 text-purple-400" />
+          <div className="relative">
+            <div className="absolute inset-0 bg-purple-500/5 rounded-2xl blur-2xl transform rotate-3" />
+            <TipJarForm />
           </div>
         </motion.div>
+      </div>
 
-        {/* Rotating ring */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] border border-purple-500/20 rounded-full animate-rotate-slow" />
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] border border-purple-500/10 rounded-full animate-rotate-slow" />
+      {/* Decorative elements */}
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] pointer-events-none">
+        <div className="absolute inset-0 border border-purple-500/20 rounded-full animate-rotate-slow" />
+        <div className="absolute inset-0 border border-purple-500/10 rounded-full animate-rotate-slow-reverse scale-90" />
       </div>
     </div>
   );

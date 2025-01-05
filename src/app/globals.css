@@ -1,7 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
 @layer base {
   :root {
     --background: 240 10% 3.9%;
@@ -33,17 +33,113 @@
   }
   body {
     @apply bg-background text-foreground;
+    background-image: 
+      radial-gradient(circle at 50% 0%, rgba(147, 51, 234, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 0% 100%, rgba(147, 51, 234, 0.05) 0%, transparent 50%);
   }
 }
 
-.glass-panel {
-  @apply bg-black bg-opacity-20 backdrop-blur-lg border border-white/10 rounded-3xl;
+@layer utilities {
+  .glass-panel {
+    @apply bg-black/20 backdrop-blur-lg border border-white/10 rounded-3xl shadow-xl;
+    box-shadow: 
+      0 0 0 1px rgba(255, 255, 255, 0.1),
+      0 8px 20px rgba(0, 0, 0, 0.3),
+      0 4px 8px rgba(147, 51, 234, 0.1);
+  }
+
+  .glass-button {
+    @apply glass-panel px-6 py-3 transition-all duration-300 hover:bg-white/10 
+           active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .purple-glow {
+    filter: drop-shadow(0 0 20px theme('colors.purple.500'));
+    animation: glow 3s ease-in-out infinite alternate;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-purple-500 to-purple-600;
+    background-size: 200% 200%;
+    animation: gradient 8s ease infinite;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-float-delay-1 {
+    animation: float 6s ease-in-out infinite;
+    animation-delay: 1s;
+  }
+
+  .animate-float-delay-2 {
+    animation: float 6s ease-in-out infinite;
+    animation-delay: 2s;
+  }
+
+  .animate-float-delay-3 {
+    animation: float 6s ease-in-out infinite;
+    animation-delay: 3s;
+  }
+
+  .animate-rotate-slow {
+    animation: rotate 20s linear infinite;
+  }
+
+  .animate-rotate-slow-reverse {
+    animation: rotate 25s linear infinite reverse;
+  }
+
+  .animate-pulse-purple {
+    animation: pulse-purple 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
 }
 
-.purple-glow {
-  filter: drop-shadow(0 0 20px theme('colors.purple.500'));
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
 }
 
-.text-gradient {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-purple-600;
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse-purple {
+  0%, 100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes glow {
+  from {
+    filter: drop-shadow(0 0 20px theme('colors.purple.500'));
+  }
+  to {
+    filter: drop-shadow(0 0 30px theme('colors.purple.400'));
+  }
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
