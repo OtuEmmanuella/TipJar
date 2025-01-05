@@ -1,17 +1,32 @@
-import Hero from "@/components/Hero";
-// import TipJarForm from "@/components/TipJarForm";
-// import TransactionHistory from "@/components/TransactionHistory";
-// import WalletConnect from "@/components/WalletConnect";
+// import Hero from "@/components/Hero";
+// // import TipJarForm from "@/components/TipJarForm";
+// // import TransactionHistory from "@/components/TransactionHistory";
+// // import WalletConnect from "@/components/WalletConnect";
 
-export default function Home() {
+// export default function Home() {
+//   return (
+//     <main className="min-h-screen bg-background">
+//       {/* <WalletConnect /> */}
+//       <Hero />
+//       {/* <div className="max-w-7xl mx-auto px-4 py-16">
+//         <TipJarForm />
+//         <TransactionHistory />
+//       </div> */}
+//     </main>
+//   );
+// }
+
+
+import Hero from "../components/Hero";
+import WalletConnect from "../components/WalletConnect";
+
+const Index = () => {
   return (
-    <main className="min-h-screen bg-background">
-      {/* <WalletConnect /> */}
+    <main className="min-h-screen bg-background text-white">
+      <WalletConnect />
       <Hero />
-      {/* <div className="max-w-7xl mx-auto px-4 py-16">
-        <TipJarForm />
-        <TransactionHistory />
-      </div> */}
     </main>
   );
-}
+};
+
+export default Index;
