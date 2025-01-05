@@ -1,9 +1,9 @@
-"use client";
-
 import { useState, useEffect, useCallback } from 'react';
 import { BrowserProvider, JsonRpcSigner } from 'ethers';
-import { switchChain, getChainName } from '../utils/wallet';
-import type { ChainId } from '../constants/chains';
+import { SUPPORTED_CHAINS, ChainId } from '../constants/chains';
+import { WALLET_PROVIDERS } from '../utils/providers';
+import { detectDevice, DEVICE_TYPES, DeviceType, isInAppBrowser } from '../utils/device';
+import { getWalletDeepLink, switchChain } from '../utils/wallet';
 
 interface WalletState {
   address: string | null;
@@ -13,6 +13,9 @@ interface WalletState {
   isConnected: boolean;
   signer: JsonRpcSigner | null;
   error: Error | null;
+  deviceType: DeviceType;
+  isInAppBrowser: boolean;
+  provider: keyof typeof WALLET_PROVIDERS | null;
 }
 
 export function useWallet() {
@@ -24,32 +27,57 @@ export function useWallet() {
     isConnected: false,
     signer: null,
     error: null,
+    deviceType: detectDevice(),
+    isInAppBrowser: isInAppBrowser(),
+    provider: null
   });
+
+  const detectProvider = useCallback(() => {
+    if (!window.ethereum) return null;
+    if (window.ethereum.isMetaMask) return 'METAMASK';
+    if (window.ethereum.isCoinbaseWallet) return 'COINBASE';
+    return null;
+  }, []);
 
   const updateChainInfo = useCallback(async () => {
     if (!window.ethereum) return;
 
-    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-    const chainName = getChainName(chainId);
+    try {
+      const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+      const chainIdNum = parseInt(chainId, 16);
+      const chainInfo = SUPPORTED_CHAINS[chainIdNum as ChainId];
 
-    setState(prev => ({
-      ...prev,
-      chainId,
-      chainName,
-    }));
-  }, []);
-
-  const connectWallet = async (preferredChainId?: ChainId) => {
-    if (!window.ethereum) {
       setState(prev => ({
         ...prev,
-        error: new Error('No wallet found')
+        chainId,
+        chainName: chainInfo?.name || 'Unknown Chain',
       }));
-      return;
+    } catch (error) {
+      console.error('Error updating chain info:', error);
     }
+  }, []);
+
+  const connectWallet = async (preferredProvider?: keyof typeof WALLET_PROVIDERS, preferredChainId?: ChainId) => {
+    const deviceType = detectDevice();
+    const inAppBrowser = isInAppBrowser();
+    
+    setState(prev => ({ ...prev, isConnecting: true, error: null }));
 
     try {
-      setState(prev => ({ ...prev, isConnecting: true, error: null }));
+      if (deviceType !== DEVICE_TYPES.DESKTOP && !inAppBrowser) {
+        const provider = preferredProvider || 'METAMASK';
+        const deepLink = getWalletDeepLink(
+          provider,
+          window.location.href,
+          preferredChainId
+        );
+        window.location.href = deepLink;
+        return;
+      }
+
+      if (!window.ethereum) {
+        throw new Error('Please install a wallet');
+      }
 
       if (preferredChainId) {
         await switchChain(preferredChainId);
@@ -61,17 +89,17 @@ export function useWallet() {
 
       const provider = new BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
-      const address = accounts[0];
 
       await updateChainInfo();
 
       setState(prev => ({
         ...prev,
-        address,
+        address: accounts[0],
         isConnecting: false,
         isConnected: true,
         signer,
         error: null,
+        provider: detectProvider()
       }));
     } catch (error) {
       setState(prev => ({
@@ -83,42 +111,47 @@ export function useWallet() {
     }
   };
 
-  const disconnectWallet = () => {
-    setState({
+  const disconnectWallet = useCallback(() => {
+    setState(prev => ({
+      ...prev,
       address: null,
       chainId: null,
       chainName: null,
-      isConnecting: false,
       isConnected: false,
       signer: null,
       error: null,
-    });
-  };
+      provider: null
+    }));
+  }, []);
 
   useEffect(() => {
-    if (window.ethereum) {
-      window.ethereum.on('accountsChanged', (accounts: string[]) => {
-        if (accounts.length === 0) {
-          disconnectWallet();
-        } else {
-          setState(prev => ({
-            ...prev,
-            address: accounts[0],
-          }));
-        }
-      });
+    const handleAccountsChanged = (accounts: string[]) => {
+      if (accounts.length === 0) {
+        disconnectWallet();
+      } else {
+        setState(prev => ({
+          ...prev,
+          address: accounts[0],
+        }));
+      }
+    };
 
-      window.ethereum.on('chainChanged', async () => {
-        await updateChainInfo();
-      });
+    const handleChainChanged = async () => {
+      await updateChainInfo();
+    };
+
+    if (window.ethereum) {
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
+      window.ethereum.on('chainChanged', handleChainChanged);
     }
 
     return () => {
       if (window.ethereum) {
-        window.ethereum.removeAllListeners();
+        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        window.ethereum.removeListener('chainChanged', handleChainChanged);
       }
     };
-  }, [updateChainInfo]);
+  }, [disconnectWallet, updateChainInfo]);
 
   return {
     ...state,
@@ -127,3 +160,4 @@ export function useWallet() {
     switchChain,
   };
 }
+

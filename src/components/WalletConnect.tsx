@@ -1,32 +1,38 @@
-"use client";
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "./ui/Button";
-import { Wallet, ChevronDown, X } from 'lucide-react';
+import { Wallet, ChevronDown } from 'lucide-react';
 import { useToast } from "./ui/use-toast";
 import WalletAddressDisplay from './WalletAddressDisplay';
 import { useWallet } from '../lib/hooks/useWallet';
 import { SUPPORTED_CHAINS, ChainId } from '../lib/constants/chains';
+import { detectDevice, DEVICE_TYPES, isInAppBrowser } from '../lib/utils/device';
+import { WALLET_PROVIDERS } from '../lib/utils/providers';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import { WalletInstructions } from './WalletInstructions';
+
+type WalletProviderType = keyof typeof WALLET_PROVIDERS;
 
 const WalletConnect: React.FC = () => {
   const { address, chainId, isConnected, isConnecting, connectWallet, disconnectWallet, switchChain } = useWallet();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState<WalletProviderType | null>(null);
+  const deviceType = detectDevice();
+  const isInApp = isInAppBrowser();
 
   const handleConnect = async (preferredChainId?: ChainId) => {
     try {
       setIsDialogOpen(false);
-      await connectWallet(preferredChainId);
+      await connectWallet('METAMASK', preferredChainId);
       toast({
         title: "Wallet Connected",
-        description: `Connected to ${SUPPORTED_CHAINS[preferredChainId as ChainId].name}`,
+        description: `Connected to ${SUPPORTED_CHAINS[preferredChainId as ChainId]?.name || 'network'}`,
       });
     } catch (error) {
       console.error("Connection error:", error);
@@ -62,6 +68,14 @@ const WalletConnect: React.FC = () => {
       });
     }
   };
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const connectParam = urlParams.get('connect');
+    if (connectParam === 'true' && !isConnected) {
+      handleConnect();
+    }
+  }, [isConnected]);
 
   return (
     <div className="flex flex-col gap-2">
@@ -102,25 +116,34 @@ const WalletConnect: React.FC = () => {
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Connect to a wallet</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              {Object.entries(SUPPORTED_CHAINS).map(([id, chain]) => (
-                <Button
-                  key={id}
-                  onClick={() => handleConnect(Number(id) as ChainId)}
-                  className="w-full justify-start text-left font-normal"
-                >
-                  <img
-                    src={`/chain-icons/${chain.name.toLowerCase().replace(' ', '-')}.svg`}
-                    alt={chain.name}
-                    className="w-5 h-5 mr-2"
-                  />
-                  {chain.name}
-                </Button>
-              ))}
-            </div>
+            {selectedProvider ? (
+              <WalletInstructions 
+                provider={selectedProvider}
+                onBack={() => setSelectedProvider(null)}
+              />
+            ) : (
+              <>
+                <DialogHeader>
+                  <DialogTitle>Connect to a wallet</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  {Object.entries(SUPPORTED_CHAINS).map(([id, chain]) => (
+                    <Button
+                      key={id}
+                      onClick={() => handleConnect(Number(id) as ChainId)}
+                      className="w-full justify-start text-left font-normal"
+                    >
+                      <img
+                        src={`/chain-icons/${chain.name.toLowerCase().replace(' ', '-')}.svg`}
+                        alt={chain.name}
+                        className="w-5 h-5 mr-2"
+                      />
+                      {chain.name}
+                    </Button>
+                  ))}
+                </div>
+              </>
+            )}
           </DialogContent>
         </Dialog>
       )}
