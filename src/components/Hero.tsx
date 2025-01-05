@@ -1,10 +1,12 @@
 "use client";
+
+import React from 'react';
 import { Bitcoin, DollarSign, Wallet, CreditCard, Plus, History } from "lucide-react";
 import { motion } from "framer-motion";
 import TipJarForm from "./TipJarForm";
 import WalletConnect from "./WalletConnect";
 
-const Hero = () => {
+const Hero: React.FC = () => {
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden px-4">
       {/* Background gradient */}
@@ -80,30 +82,33 @@ const Hero = () => {
             Send instant tips across the blockchain. Support creators, artists, and innovators with seamless cryptocurrency transactions.
           </motion.p>
 
-          {/* Transaction History Button */}
-          <div className="flex flex-wrap items-center gap-4">
-            <motion.button
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              className="group relative inline-flex items-center gap-2 px-6 py-3 bg-purple-500/10 hover:bg-purple-500/20 
-                         text-purple-300 rounded-lg transition-all duration-300 backdrop-blur-sm border border-purple-500/20
-                         hover:border-purple-500/40"
-              onClick={() => {/* Add your transaction history logic here */}}
-            >
-              <History className="w-5 h-5 transition-transform group-hover:rotate-180 duration-500" />
-              <span className="font-medium">View Transaction History</span>
-              <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-purple-500/0 via-purple-500/10 to-purple-500/0 
-                            opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500" />
-            </motion.button>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.7 }}
-            >
-              <WalletConnect />
-            </motion.div>
+          {/* Action Buttons and Wallet Section */}
+          <div className="flex flex-col gap-4">
+            {/* Transaction History and Connect Wallet */}
+            <div className="flex flex-wrap items-center gap-4">
+              <motion.button
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.6 }}
+                className="group relative inline-flex items-center gap-2 px-6 py-3 bg-purple-500/10 hover:bg-purple-500/20 
+                           text-purple-300 rounded-lg transition-all duration-300 backdrop-blur-sm border border-purple-500/20
+                           hover:border-purple-500/40"
+                onClick={() => {/* Add your transaction history logic here */}}
+              >
+                <History className="w-5 h-5 transition-transform group-hover:rotate-180 duration-500" />
+                <span className="font-medium">View Transaction History</span>
+                <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-purple-500/0 via-purple-500/10 to-purple-500/0 
+                              opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500" />
+              </motion.button>
+              
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.7 }}
+              >
+                <WalletConnect />
+              </motion.div>
+            </div>
           </div>
         </div>
 

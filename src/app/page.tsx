@@ -23,7 +23,6 @@ import WalletConnect from "../components/WalletConnect";
 const Index = () => {
   return (
     <main className="min-h-screen bg-background text-white">
-      <WalletConnect />
       <Hero />
     </main>
   );
